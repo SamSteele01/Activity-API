@@ -18,8 +18,7 @@ exports.create_new_activity = function(req, res){
   // req.body should take: name which is a required String
   // date is auto created
   var new_activity = new Activity(req.body);
-  console.log(req.body);
-  // req.body.dateCreated = date.toDateString();
+
   new_activity.save(function(err, activity) {
     if (err)
       res.send(err);
@@ -39,6 +38,7 @@ exports.show_an_activity = function(req, res) {
 
 exports.update_an_activity = function(req, res) {
   // PUT	/activities/{id}	Update one activity I am tracking, changing attributes such as name or type. Does not allow for changing tracked data.
+  console.log(req.body);
   Activity.findOneAndUpdate({_id: req.params.activityId}, req.body, {new: true}, function(err, activity) {
     if (err)
       res.send(err);
@@ -61,22 +61,34 @@ exports.delete_an_activity = function(req, res) {
  exports.add_data = function(req, res) {
    //  POST	/activities/{id}/stats	Add tracked data for a day. The data sent with this should include the day tracked. You can also override the data for a day already recorded.
   //  data gets a date automatically. Data can be:
-  //          infoString: String,
-  //          infoObject: {key: value},
-  //          infoArray: [String]
-   Activity.findOneAndUpdate({_id: req.params.activityId}, req.body.data, {new: true}, function(err, activity) {
+  // data: [{id: Number,
+  //       date: {type: Date, default: Date.now},
+  //       infoString: String,
+  //       infoNumber: Number
+  //     }]
+   Activity.updateOne({_id: req.params.activityId},
+      {$push: {data: req.body}},
+
+      // if(activity.data.length===undefined){
+      //   req.body.data.id = 0;
+      // }else{
+      //   req.body.data.id = activity.data.length;
+      // }
+      // --won't work if an entry gets deleted
+      function(err, activity) {
      if (err)
        res.send(err);
-       activity.data
-     res.json(activity.data);
+
+     res.json(activity);
    });
  };
 
  exports.remove_data = function(req, res) {
   //  DELETE	/stats/{id}	Remove tracked data for a day.
-   Activity.remove({
-      _id: req.params.activityId
-    }, function(err, data) {
+  console.log(req.params.dataId);
+   Activity.updateOne({_id: req.params.activityId},
+     {$pull: {data: req.params.dataId}},
+      function(err, data) {
       if (err)
         res.send(err);
       res.json({ message: 'Data successfully deleted' });

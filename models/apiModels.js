@@ -5,11 +5,11 @@ const activityApiSchema = new mongoose.Schema({
   // not sure of the pieces needed
   // may need nested schemas
   name: {type: String, required: true, unique: true},
-  data: {date: {type: Date, default: Date.now},
+  data: [{id: Number,
+        date: {type: Date, default: Date.now},
         infoString: String,
-        infoObject: Object,
-        infoArray: [String]
-        }
+        infoNumber: Number
+      }]
 })
 
 const ActivityApi = mongoose.model('ActivityApi', activityApiSchema);
