@@ -68,13 +68,6 @@ exports.delete_an_activity = function(req, res) {
   //     }]
    Activity.updateOne({_id: req.params.activityId},
       {$push: {data: req.body}},
-
-      // if(activity.data.length===undefined){
-      //   req.body.data.id = 0;
-      // }else{
-      //   req.body.data.id = activity.data.length;
-      // }
-      // --won't work if an entry gets deleted
       function(err, activity) {
      if (err)
        res.send(err);
@@ -87,8 +80,9 @@ exports.delete_an_activity = function(req, res) {
   //  DELETE	/stats/{id}	Remove tracked data for a day.
   console.log(req.params.dataId);
    Activity.updateOne({_id: req.params.activityId},
-     {$pull: {data: req.params.dataId}},
-      function(err, data) {
+     {$pull: {data: {_id: req.params.dataId}}},
+      function(err, activity) {
+        console.log(activity);
       if (err)
         res.send(err);
       res.json({ message: 'Data successfully deleted' });
